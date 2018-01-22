@@ -17,8 +17,8 @@
 
 #define EEPROM_TEMPERATURA_DESEJADA     10
 #define EEPROM_TOLERANCIA_TEMPERATURA   20
-#define EEPROM_TOLERANCIA_DIF_LIGAR     30
-#define EEPROM_TOLERANCIA_DIF_DESLIGAR  40
+#define EEPROM_TOLERANCIA_DIFERENCA     30
+
 
 
 /* ==== END Defines ==== */
@@ -27,8 +27,12 @@
 int temperaturaDesejada = 30; //ºC
 int toleranciaTemperaturaDesejada = 1; //ºC
 
-int toleranciaDiferencaLigarBomba = 3;
-int toleranciaDiferencaDesligarBomba = 3;
+int toleranciaDiferenca = 3;
+
+float temperaturaCima = 0;
+float temperaturaBaixo = 0;
+
+bool bombaLigada = false;
 
 /* ==== END Global Variables ==== */
 
@@ -36,7 +40,8 @@ int toleranciaDiferencaDesligarBomba = 3;
 void setup() {
   Serial.begin(SERIAL_BAUD);
   buttonToLow();
-
+  desligarBomba();
+  lerTemperaturas();
 }
 
 void loop() {
@@ -53,29 +58,73 @@ void printStatusOnSerial(){
   Serial.print(" Tolerancia temp desejada: ");
   Serial.print(toleranciaTemperaturaDesejada);
   
-  Serial.print(" Tolerancia dif ligar: ");
-  Serial.print(toleranciaDiferencaLigarBomba;
+  Serial.print(" Tolerancia dif: ");
+  Serial.print(toleranciaDiferenca;
   
-  Serial.print(" Tolerancia dif desligar: ");
-  Serial.print(toleranciaDiferencaDesligarBomba);
   
 }
 
 void readFromEprom(){
   temperaturaDesejada = EEPROM.read(EEPROM_TEMPERATURA_DESEJADA);
   toleranciaTemperaturaDesejada = EEPROM.read(EEPROM_TOLERANCIA_TEMPERATURA);
-  toleranciaDiferencaLigarBomba = EEPROM.read(EEPROM_TOLERANCIA_DIF_LIGAR);
-  toleranciaDiferencaDesligarBomba = EEPROM.read(EEPROM_TOLERANCIA_DIF_DESLIGAR);  
+  toleranciaDiferenca = EEPROM.read(EEPROM_TOLERANCIA_DIFERENCA);  
 }
 
 void writeOnEprom(){
   EEPROM.put(EEPROM_TEMPERATURA_DESEJADA, temperaturaDesejada);
   EEPROM.put(EEPROM_TOLERANCIA_TEMPERATURA, toleranciaTemperaturaDesejada);
-  EEPROM.put(EEPROM_TOLERANCIA_DIF_LIGAR, toleranciaDiferencaLigarBomba);
-  EEPROM.put(EEPROM_TOLERANCIA_DIF_DESLIGAR, toleranciaDiferencaDesligarBomba);
+  EEPROM.put(EEPROM_TOLERANCIA_DIFERENCA, toleranciaDiferenca);
+}
+
+bool validaTemperaturaDesejada(){
+  if(!bombaLigada){
+    if(temperaturaBaixo + toleranciaTemperaturaDesejada <= temperaturaDesejada){
+      return true;
+    }
+    return false;
+  }else{
+    if(temperaturaBaixo - toleranciaTemperaturaDesejada >= temperaturaDesejada){
+      return true;
+    }
+    return false;
+  }
 }
 
 
+bool validaDiferencaTemperatura(){
+  if(!bombaLigada){
+    if((temperaturaCima - toleranciaDiferenca) > temperaturaBaixo){
+      return true;
+    }else{
+      return false;
+    }
+  }else{
+    if(temperaturaCima > temperaturaBaixo){
+      return true;
+    }else{
+      return false;
+    }
+  }
+}
+
+void lerTemperaturas(){
+  temperaturaCima = lerTemperaturaDe(SENSOR_TEMPERATURA_CIMA);
+  temperaturaBaixo = lerTemperaturaDe(SENSOR_TEMPERATURA_BAIXO);
+}
+
+float lerTemperaturaDe(int sensor){
+  return 0.0;
+}
+
+void ligarBomba(){
+  digitalWrite(RELE_BOMBA, HIGH);
+  bombaLigada = true;
+}
+
+void desligarBomba(){
+  digitalWrite(RELE_BOMBA, LOW);
+  bombaLigada = false;
+}
 
 void buttonToLow(){
   digitalWrite(BOTAO_MAIS, LOW);
