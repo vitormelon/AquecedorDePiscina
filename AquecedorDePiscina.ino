@@ -1,13 +1,14 @@
-
-
+#include <Wire.h> 
 #include <EEPROM.h>
+#include <LiquidCrystal_I2C.h>
+#include <Thermistor.h>
 
 /* ==== Defines ==== */
 
 //Pinos
 #define SENSOR_TEMPERATURA_CIMA         1 
-#define SENSOR_TEMPERATURA_BAIXO        1 
-#define RELE_BOMBA                      1
+#define SENSOR_TEMPERATURA_BAIXO        2 
+#define RELE_BOMBA                      4
 #define BOTAO_MAIS                      1 
 #define BOTAO_MENOS                     1
 #define BOTAO_MENU                      1
@@ -27,28 +28,65 @@
 int temperaturaDesejada = 30; //ºC
 int toleranciaTemperaturaDesejada = 1; //ºC
 
-int toleranciaDiferenca = 3;
+int toleranciaDiferenca = 2;
 
 float temperaturaCima = 0;
 float temperaturaBaixo = 0;
 
 bool bombaLigada = false;
 
+Thermistor sensorCima(SENSOR_TEMPERATURA_CIMA);
+Thermistor sensorBaixo(SENSOR_TEMPERATURA_BAIXO);
+
+LiquidCrystal_I2C lcd(0x3F, 20, 4);
 /* ==== END Global Variables ==== */
 
 
 void setup() {
   Serial.begin(SERIAL_BAUD);
+  lcd.begin();
+  pinMode(RELE_BOMBA, OUTPUT);
   buttonToLow();
   desligarBomba();
   lerTemperaturas();
 }
 
 void loop() {
-  
+  getTemperaturas();
+  if(validaDiferencaTemperatura()){
+    ligarBomba();
+  }else{
+    desligarBomba();
+  }
+  printDisplay();
+  delay(1000);
 }
 /* ==== Functions ==== */
 
+void printDisplay(){
+  String bomba = "Desligada";
+  if(bombaLigada){bomba = "Ligada    ";}
+  lcd.setCursor(0,0);
+  lcd.print("Placa: ");
+  lcd.print(temperaturaCima);
+  lcd.print("*C");
+  lcd.setCursor(0,1);
+  lcd.print("Piscina: ");
+  lcd.print(temperaturaBaixo);
+  lcd.print("*C");
+  lcd.setCursor(0,2);
+  lcd.print("Bomba: ");
+  lcd.print(bomba);
+}
+
+void getTemperaturas(){
+  temperaturaCima = arredonda(sensorCima.getTemp());
+  temperaturaBaixo = arredonda(sensorBaixo.getTemp());
+}
+
+float arredonda(float numero){
+  return ((int)(numero * 10))/10.0;
+}
 
 void printStatusOnSerial(){
   
@@ -59,7 +97,7 @@ void printStatusOnSerial(){
   Serial.print(toleranciaTemperaturaDesejada);
   
   Serial.print(" Tolerancia dif: ");
-  Serial.print(toleranciaDiferenca;
+  Serial.print(toleranciaDiferenca);
   
   
 }
@@ -71,9 +109,9 @@ void readFromEprom(){
 }
 
 void writeOnEprom(){
-  EEPROM.put(EEPROM_TEMPERATURA_DESEJADA, temperaturaDesejada);
-  EEPROM.put(EEPROM_TOLERANCIA_TEMPERATURA, toleranciaTemperaturaDesejada);
-  EEPROM.put(EEPROM_TOLERANCIA_DIFERENCA, toleranciaDiferenca);
+  EEPROM.write(EEPROM_TEMPERATURA_DESEJADA, temperaturaDesejada);
+  EEPROM.write(EEPROM_TOLERANCIA_TEMPERATURA, toleranciaTemperaturaDesejada);
+  EEPROM.write(EEPROM_TOLERANCIA_DIFERENCA, toleranciaDiferenca);
 }
 
 bool validaTemperaturaDesejada(){
