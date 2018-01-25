@@ -67,15 +67,17 @@ void printDisplay(){
   String bomba = "Desligada";
   if(bombaLigada){bomba = "Ligada    ";}
   lcd.setCursor(0,0);
-  lcd.print("Placa: ");
+  lcd.print("Melon's Pool Heater");
+  lcd.setCursor(0,1);
+  lcd.print("   Placa: ");
   lcd.print(temperaturaCima);
   lcd.print("*C");
-  lcd.setCursor(0,1);
-  lcd.print("Piscina: ");
+  lcd.setCursor(0,2);
+  lcd.print(" Piscina: ");
   lcd.print(temperaturaBaixo);
   lcd.print("*C");
-  lcd.setCursor(0,2);
-  lcd.print("Bomba: ");
+  lcd.setCursor(0,3);
+  lcd.print("   Bomba: ");
   lcd.print(bomba);
 }
 
