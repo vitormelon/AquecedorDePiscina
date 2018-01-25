@@ -35,8 +35,8 @@ float temperaturaBaixo = 0;
 
 bool bombaLigada = false;
 
-Thermistor sensorCima(SENSOR_TEMPERATURA_CIMA);
-Thermistor sensorBaixo(SENSOR_TEMPERATURA_BAIXO);
+Thermistor sensorCima(SENSOR_TEMPERATURA_CIMA, 9740);
+Thermistor sensorBaixo(SENSOR_TEMPERATURA_BAIXO, 9740);
 
 LiquidCrystal_I2C lcd(0x3F, 20, 4);
 /* ==== END Global Variables ==== */
@@ -80,8 +80,8 @@ void printDisplay(){
 }
 
 void getTemperaturas(){
-  temperaturaCima = arredonda(sensorCima.getTemp());
-  temperaturaBaixo = arredonda(sensorBaixo.getTemp());
+  temperaturaCima = arredonda(sensorCima.getTemp(5));
+  temperaturaBaixo = arredonda(sensorBaixo.getTemp(5));
 }
 
 float arredonda(float numero){
@@ -109,9 +109,16 @@ void readFromEprom(){
 }
 
 void writeOnEprom(){
-  EEPROM.write(EEPROM_TEMPERATURA_DESEJADA, temperaturaDesejada);
-  EEPROM.write(EEPROM_TOLERANCIA_TEMPERATURA, toleranciaTemperaturaDesejada);
-  EEPROM.write(EEPROM_TOLERANCIA_DIFERENCA, toleranciaDiferenca);
+  writeIfChange(EEPROM_TEMPERATURA_DESEJADA, temperaturaDesejada);
+  writeIfChange(EEPROM_TOLERANCIA_TEMPERATURA, toleranciaTemperaturaDesejada);
+  writeIfChange(EEPROM_TOLERANCIA_DIFERENCA, toleranciaDiferenca);
+}
+
+void writeIfChange(int address, int value){
+  int eepromValue = EEPROM.read(address);
+  if(eepromValue != value){
+    EEPROM.write(address, value);  
+  }
 }
 
 bool validaTemperaturaDesejada(){
