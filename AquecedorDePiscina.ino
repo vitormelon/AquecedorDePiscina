@@ -25,7 +25,7 @@
 /* ==== END Defines ==== */
 
 /* ==== Global Variables ==== */
-int temperaturaDesejada = 30; //ºC
+int temperaturaDesejada = 35; //ºC
 int toleranciaTemperaturaDesejada = 1; //ºC
 
 int toleranciaDiferenca = 2;
@@ -53,7 +53,7 @@ void setup() {
 
 void loop() {
   getTemperaturas();
-  if(validaDiferencaTemperatura()){
+  if(LigarBombaPelaDiferencaDeTemperatura()){
     ligarBomba();
   }else{
     desligarBomba();
@@ -82,8 +82,8 @@ void printDisplay(){
 }
 
 void getTemperaturas(){
-  temperaturaCima = arredonda(sensorCima.getTemp(1000));
-  temperaturaBaixo = arredonda(sensorBaixo.getTemp(1000));
+  temperaturaCima = arredonda(sensorCima.getTemp(2000));
+  temperaturaBaixo = arredonda(sensorBaixo.getTemp(2000));
 }
 
 float arredonda(float numero){
@@ -138,7 +138,7 @@ bool validaTemperaturaDesejada(){
 }
 
 
-bool validaDiferencaTemperatura(){
+bool LigarBombaPelaDiferencaDeTemperatura(){
   if(!bombaLigada){
     if((temperaturaCima - toleranciaDiferenca) > temperaturaBaixo){
       return true;
