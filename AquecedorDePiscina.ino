@@ -1,7 +1,7 @@
 #include <Wire.h> 
 #include <EEPROM.h>
 #include <LiquidCrystal_I2C.h>
-#include <Thermistor.h>
+#include </home/vitormelon/dev/AquecedorDePiscina/libraries/Thermistor/Thermistor.cpp>
 
 /* ==== Defines ==== */
 
@@ -59,7 +59,7 @@ void loop() {
     desligarBomba();
   }
   printDisplay();
-  delay(1000);
+  delay(2000);
 }
 /* ==== Functions ==== */
 
@@ -70,11 +70,11 @@ void printDisplay(){
   lcd.print("Melon's Pool Heater");
   lcd.setCursor(0,1);
   lcd.print("   Placa: ");
-  lcd.print(temperaturaCima);
+  lcd.print(temperaturaCima,1);
   lcd.print("*C");
   lcd.setCursor(0,2);
   lcd.print(" Piscina: ");
-  lcd.print(temperaturaBaixo);
+  lcd.print(temperaturaBaixo,1);
   lcd.print("*C");
   lcd.setCursor(0,3);
   lcd.print("   Bomba: ");
@@ -82,8 +82,8 @@ void printDisplay(){
 }
 
 void getTemperaturas(){
-  temperaturaCima = arredonda(sensorCima.getTemp(5));
-  temperaturaBaixo = arredonda(sensorBaixo.getTemp(5));
+  temperaturaCima = arredonda(sensorCima.getTemp(1000));
+  temperaturaBaixo = arredonda(sensorBaixo.getTemp(1000));
 }
 
 float arredonda(float numero){

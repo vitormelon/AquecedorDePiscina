@@ -22,21 +22,23 @@ Thermistor::Thermistor(int pin, int resistor = 10000) {
 double Thermistor::getTemp(int numSamples = 1) {
   // Inputs ADC Value from Thermistor and outputs Temperature in Celsius
 
-  int i;
-  long Resistance;
+  int i, Vin = 1023;
+  double Resistance;
   double Temp;
   long sum = 0;
   for(i = 0; i < numSamples; i++){
-    sum = sum + 1023 - analogRead(_pin);
-    delay(100);
+    sum = sum + analogRead(_pin);
   }
   
-  int RawADC = sum/numSamples;
+  float RawADC = sum/numSamples;
   
-
   // Usin the resistor resistence.  Calculation is actually: Resistance = (1024/ADC)
-  Resistance=((10240000/RawADC) - _resistor);
+  //Resistance=((10240000/RawADC) - _resistor);
+  Resistance = (((double)Vin / RawADC)  - 1);     // (1023/ADC - 1) 
+  
+  Resistance = ((double)_resistor / Resistance);
 
+  //Resistance = ((_resistor/((Vin/RawADC)-1)));
   /******************************************************************/
   /* Utilizes the Steinhart-Hart Thermistor Equation:				*/
   /*    Temperature in Kelvin = 1 / {A + B[ln(R)] + C[ln(R)]^3}		*/
@@ -48,7 +50,7 @@ double Thermistor::getTemp(int numSamples = 1) {
 
   // - TESTING OUTPUT - remove lines with * to get serial print of data
   Serial.print("ADC: "); Serial.print(RawADC); Serial.print("/1024");  // Print out RAW ADC Number
-  Serial.print(", Volts: "); Serial.print(((RawADC*4.960)/1024.0),3);   // 4.860 volts is what my USB Port outputs.
+  Serial.print(", Volts: "); Serial.print((1/((Vin/RawADC)-1)),3);   // 4.860 volts is what my USB Port outputs.
   Serial.print(", Resistance: "); Serial.print(Resistance); Serial.println("ohms");
   //
 
