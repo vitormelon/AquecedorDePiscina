@@ -59,7 +59,7 @@ void loop() {
     desligarBomba();
   }
   printDisplay();
-  delay(2000);
+  delay(5000);
 }
 /* ==== Functions ==== */
 
@@ -82,8 +82,8 @@ void printDisplay(){
 }
 
 void getTemperaturas(){
-  temperaturaCima = arredonda(sensorCima.getTemp(2000));
-  temperaturaBaixo = arredonda(sensorBaixo.getTemp(2000));
+  temperaturaCima = arredonda(sensorCima.getTemp(5000));
+  temperaturaBaixo = arredonda(sensorBaixo.getTemp(5000));
 }
 
 float arredonda(float numero){

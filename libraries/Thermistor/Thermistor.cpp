@@ -22,11 +22,11 @@ double Thermistor::getTemp(int numSamples = 1) {
     sum = sum + analogRead(_pin);
   }
   
-  RawADC = (float)sum/numSamples;
+  RawADC = (double)sum/numSamples;
   
   Resistance = ((double)_resistor / (((double)Vin / RawADC)  - 1));   
    
-  TempK = beta/(log(Resistance/r25)+(beta/t0));
+  TempK = (double)beta/(log((double)Resistance/r25)+((double)beta/t0));
   Temp = TempK-273.15;
 
   return Temp;  // Return the Temperature
